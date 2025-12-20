@@ -384,10 +384,17 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate }) => {
                             {isEditMode ? 'Save Changes' : 'Edit Profile'}
                         </Button>
                         {!isEditMode && (
-                            <Button variant="secondary" className="w-full justify-start text-sm" onClick={() => setShowLogoutConfirm(true)}>
-                                <LogOut className="w-4 h-4 mr-2 text-rose-400" />
-                                Sign Out
-                            </Button>
+                            isGuest ? (
+                                <Button variant="secondary" className="w-full justify-start text-sm" onClick={() => onNavigate('login')}>
+                                    <LogOut className="w-4 h-4 mr-2 text-cyan-400" />
+                                    Sign In
+                                </Button>
+                            ) : (
+                                <Button variant="secondary" className="w-full justify-start text-sm" onClick={() => setShowLogoutConfirm(true)}>
+                                    <LogOut className="w-4 h-4 mr-2 text-rose-400" />
+                                    Sign Out
+                                </Button>
+                            )
                         )}
                     </div>
                 </div>
