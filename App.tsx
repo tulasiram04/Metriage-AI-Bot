@@ -157,7 +157,7 @@ function App() {
         <SignInModal
           isOpen={showSignInModal}
           onClose={() => setShowSignInModal(false)}
-          onSignIn={() => window.location.href = 'login.html'}
+          onSignIn={() => window.location.href = '/login'}
         />
       </div>
     </div>

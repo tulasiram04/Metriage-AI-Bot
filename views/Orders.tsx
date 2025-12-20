@@ -11,7 +11,7 @@ export const Orders: React.FC = () => {
                 const savedUser = localStorage.getItem('medtriage_user');
                 if (!savedUser) {
                     alert("Please sign in to view your orders.");
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                     return;
                 }
 

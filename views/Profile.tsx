@@ -264,7 +264,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate }) => {
     const handleLogout = () => {
         localStorage.removeItem('campus_isAuthenticated');
         localStorage.removeItem('medtriage_user');
-        window.location.href = 'login.html';
+        window.location.href = '/login';
     };
 
     const handleClearData = () => {
