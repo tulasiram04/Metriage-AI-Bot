@@ -48,10 +48,38 @@ The system is designed for **educational and demonstration purposes**.
 - Vercel
 - Static build (`dist/`)
 
----
+## Project Structure
 
-
-
+```text
+Campus Navigation System
+├── public
+│   ├── pharmacy-hero.jpg
+│   └── favicon.svg
+│
+├── views
+│   ├── Home.tsx
+│   ├── Pharmacy.tsx
+│   ├── Triage.tsx
+│   ├── Orders.tsx
+│   ├── Reports.tsx
+│   ├── Profile.tsx
+│   └── About.tsx
+│
+├── components
+│   ├── Header.tsx
+│   ├── Button.tsx
+│   ├── Icons.tsx
+│   └── AlertModal.tsx
+│
+├── services
+│   └── api.ts
+│
+├── App.tsx
+├── main.tsx
+├── index.html
+├── package.json
+└── README.md
+```
 
 ## Setup Instructions
 1. Clone the repository
@@ -98,13 +126,9 @@ VITE_GEMINI_API_KEY=your_api_key
 # Disclaimer
 
 This project is built only for learning and demonstration.
-
 AI results are probabilistic
-
 Not a substitute for professional medical advice
-
 Prescription medicines must follow Indian regulations
-
 Always consult a licensed medical practitioner
 
 ## Author
