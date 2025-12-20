@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedTriage AI | Intelligent Healthcare Assessment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicom.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="/favicom.svg">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            glass: {
+              100: 'rgba(255, 255, 255, 0.05)',
+              200: 'rgba(255, 255, 255, 0.1)',
+              300: 'rgba(255, 255, 255, 0.15)',
+              border: 'rgba(255, 255, 255, 0.1)',
+            },
+            medical: {
+              50: '#f0fdfa', // teal-50
+              100: '#ccfbf1', // teal-100
+              500: '#14b8a6', // teal-500
+              600: '#0d9488', // teal-600
+              900: '#134e4a', // teal-900
+            },
+            cyan: {
+              500: '#06b6d4',
+              900: '#164e63',
+            },
+            slate: {
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          },
+          animation: {
+            'blob': 'blob 10s infinite',
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            blob: {
+              '0%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+              '100%': { transform: 'translate(0px, 0px) scale(1)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background-color: #020617;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-panel:hover {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Hide scrollbar for clean UI */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 10px;
+    }
+
+    /* Hide spin buttons for number inputs */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: #334155 transparent;
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "jspdf": "https://esm.sh/jspdf@2.5.1"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

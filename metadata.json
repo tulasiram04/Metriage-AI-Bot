@@ -1,0 +1,7 @@
+{
+  "name": "MedTriage AI",
+  "description": "An AI-Powered Healthcare Triage & Decision Support System for final year project demonstration.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

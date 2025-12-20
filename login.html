@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Navigation System - Login</title>
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,800" rel="stylesheet">
+    <link rel="icon" href="/favicom.svg.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicom.svg.svg">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* VIDEO BACKGROUND */
+        .video-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+        }
+
+        .video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-bg::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        /* TITLE */
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        /* MAIN GLASS CARD */
+        .container {
+            width: 768px;
+            max-width: 100%;
+            min-height: 480px;
+            position: relative;
+            overflow: hidden;
+
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, .45);
+        }
+
+        /* FORM COLUMNS */
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transition: .6s ease-in-out;
+
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        /* FORM */
+        form {
+            height: 100%;
+            padding: 0 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        span {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        a {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            text-decoration: none;
+            margin: 10px 0;
+        }
+
+        /* INPUTS */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* BUTTONS */
+        button {
+            margin-top: 15px;
+            padding: 12px 45px;
+            border-radius: 25px;
+
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: .3s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* SLIDE LOGIC */
+        .sign-in-container {
+            left: 0;
+            z-index: 2;
+            transform: translateX(0);
+        }
+
+        .sign-up-container {
+            left: 0;
+            opacity: 0;
+            z-index: 2;
+            transform: translateX(100%);
+        }
+
+        .container.right-panel-active .sign-in-container {
+            transform: translateX(-100%);
+        }
+
+        .container.right-panel-active .sign-up-container {
+            transform: translateX(100);
+            opacity: 1;
+            z-index: 5;
+        }
+
+        /* GLASS OVERLAY */
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: .6s ease-in-out;
+            z-index: 100;
+        }
+
+        .container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+
+            transition: .6s ease-in-out;
+        }
+
+        .container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            padding: 0 40px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+        }
+
+        /* GOOGLE */
+        .google-wrap {
+            margin: 18px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* PASSWORD TOGGLE */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* CUSTOM MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 90%;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        .modal p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 20px 0;
+        }
+
+        .modal button {
+            background: #00d2ff;
+            background: -webkit-linear-gradient(to right, #3a7bd5, #00d2ff);
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            border: none;
+            padding: 12px 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- VIDEO -->
+    <div class="video-bg">
+        <video autoplay muted loop playsinline>
+            <source src="Bg Video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <h2>Campus Navigation System</h2>
+
+    <div class="container" id="container">
+
+        <!-- SIGN UP -->
+        <div class="form-container sign-up-container">
+            <form onsubmit="return validateSignup();">
+                <h1>Create Account</h1>
+                <div class="google-wrap" id="googleSignUp"></div>
+                <span>or use your email</span>
+                <input type="text" id="signupName" placeholder="Name">
+                <input type="email" id="signupEmail" placeholder="Email">
+                <div class="password-wrapper">
+                    <input type="password" id="signupPassword" placeholder="Password">
+                    <i class="fa fa-eye" id="toggleSignup"
+                        onclick="togglePassword('signupPassword', 'toggleSignup')"></i>
+                </div>
+                <div id="signupError" style="color:#ffb3b3;margin-top:6px;font-size:13px"></div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- SIGN IN -->
+        <div class="form-container sign-in-container">
+            <form onsubmit="return validateSignin();">
+                <h1>Sign In</h1>
+                <div class="google-wrap" id="googleSignIn"></div>
+                <span>or use your account</span>
+                <input type="email" id="signinEmail" placeholder="Email">
+                <div class="password-wrapper">
+                    <input type="password" id="signinPassword" placeholder="Password">
+                    <i class="fa fa-eye" id="toggleSignin"
+                        onclick="togglePassword('signinPassword', 'toggleSignin')"></i>
+                </div>
+                <div id="signinError" style="color:#ffb3b3;margin-top:6px;font-size:13px"></div>
+                <a href="#">Forgot your password?</a>
+                <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+                    <button type="submit">Sign In</button>
+                    <button type="button" class="ghost" onclick="guestLogin()">Continue as Guest</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- SUCCESS MODAL -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <h3>Success!</h3>
+                <p id="modalMessage">Login Successful</p>
+                <button onclick="window.location.href = 'index.html'">OK</button>
+            </div>
+        </div>
+
+        <!-- OVERLAY -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Login to access campus navigation</p>
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Start your journey with us</p>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const signUpButton = document.getElementById("signUp");
+        const signInButton = document.getElementById("signIn");
+        const container = document.getElementById("container");
+
+        signUpButton.onclick = () => container.classList.add("right-panel-active");
+        signInButton.onclick = () => container.classList.remove("right-panel-active");
+
+        const API_URL = 'http://localhost:5000/api/auth';
+
+        /* TOGGLE PASSWORD */
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        function showSuccess(message) {
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        async function handleAuth(endpoint, data) {
+            try {
+                console.log(`Sending request to ${API_URL}/${endpoint}`);
+                const res = await fetch(`${API_URL}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                console.log('Response:', result);
+
+                if (!res.ok) throw new Error(result.error || `Server Error: ${res.status}`);
+
+                // Save user and redirect
+                localStorage.setItem('campus_isAuthenticated', 'true');
+                localStorage.setItem('medtriage_user', JSON.stringify(result.user));
+
+                // Show custom modal
+                showSuccess(result.message);
+            } catch (err) {
+                console.error(err);
+                alert(`Login Failed: ${err.message}. Check console for details.`);
+            }
+        }
+
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "662270846628-m7vi534bf3rfnono5f12moso5dltifv4.apps.googleusercontent.com",
+                callback: handleGoogleLogin
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById("googleSignIn"),
+                { theme: "filled_black", size: "large", shape: "pill", width: 240 }
+            );
+
+            google.accounts.id.renderButton(
+                document.getElementById("googleSignUp"),
+                { theme: "filled_black", size: "large", shape: "pill", width: 240 }
+            );
+        };
+
+        function handleGoogleLogin(response) {
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            console.log("Google Payload:", payload);
+
+            // Send to backend to sync/create user
+            // We pass the whole payload or just what we need. Note: payload.sub is the googleId
+            handleAuth('google', payload);
+        }
+
+        /* SIGN IN */
+        function validateSignin() {
+            const email = document.getElementById("signinEmail").value.trim();
+            const password = document.getElementById("signinPassword").value;
+            const errEl = document.getElementById("signinError");
+
+            if (!email || !password) {
+                errEl.innerText = "❌ Please enter email and password";
+                return false;
+            }
+
+            handleAuth('login', { email, password });
+            return false;
+        }
+
+        /* SIGN UP */
+        function validateSignup() {
+            const name = document.getElementById("signupName").value;
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            const error = document.getElementById("signupError");
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{9,}$/;
+
+            if (!regex.test(password)) {
+                error.innerText = "Password must be 9+ chars with upper, lower, number & special character";
+                return false;
+            }
+
+            handleAuth('register', { name, email, password });
+            return false;
+        }
+
+        /* GUEST */
+        /* GUEST */
+        function guestLogin() {
+            try {
+                localStorage.setItem('campus_isAuthenticated', 'true');
+                localStorage.removeItem('medtriage_user'); // Clear specific user data for guest
+            } catch (e) { }
+            showSuccess("Welcome Guest!");
+        }
+    </script>
+
+</body>
+
+</html>
