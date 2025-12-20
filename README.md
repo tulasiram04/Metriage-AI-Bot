@@ -92,6 +92,7 @@ dist
 
 Environment Variables (example)
 VITE_API_BASE_URL=https://your-api-url
+
 VITE_GEMINI_API_KEY=your_api_key
 
 # Disclaimer
