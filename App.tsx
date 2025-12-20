@@ -8,6 +8,7 @@ import { About } from './views/About';
 import { Pharmacy, Medicine } from './views/Pharmacy';
 import { Orders } from './views/Orders';
 import { Profile } from './views/Profile';
+import Login from './views/Login';
 import { ViewState, HistoryItem } from './types';
 import { CartDrawer } from './components/CartDrawer';
 import { SignInModal } from './components/SignInModal';
@@ -31,6 +32,40 @@ function App() {
   useEffect(() => {
     localStorage.setItem('medtriage_history', JSON.stringify(history));
   }, [history]);
+
+  // Simple pathname <-> view mapping so SPA routes work without react-router.
+  const viewToPath: Record<ViewState, string> = {
+    home: '/',
+    triage: '/triage',
+    reports: '/reports',
+    about: '/about',
+    pharmacy: '/pharmacy',
+    orders: '/orders',
+    profile: '/profile',
+    login: '/login',
+  };
+
+  const pathToView = (path: string): ViewState => {
+    const p = path.split('?')[0];
+    const entry = (Object.keys(viewToPath) as ViewState[]).find(v => viewToPath[v] === p);
+    return entry || 'home';
+  };
+
+  // Initialize current view from URL and listen to history navigation
+  useEffect(() => {
+    setCurrentView(pathToView(window.location.pathname));
+    const onPop = () => setCurrentView(pathToView(window.location.pathname));
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // keep URL in sync when currentView changes
+  useEffect(() => {
+    const desired = viewToPath[currentView] || '/';
+    if (window.location.pathname !== desired) {
+      window.history.pushState({}, '', desired);
+    }
+  }, [currentView]);
 
   useEffect(() => {
     // Force dark mode class on html element
@@ -141,6 +176,7 @@ function App() {
           {currentView === 'about' && <About />}
           {currentView === 'pharmacy' && <Pharmacy onAddToCart={addToCart} cartItemCount={cartItems.length} />}
           {currentView === 'profile' && <Profile onNavigate={setCurrentView} />}
+          {currentView === 'login' && <Login />}
         </main>
 
         <Footer />

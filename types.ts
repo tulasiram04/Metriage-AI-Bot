@@ -39,4 +39,4 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-export type ViewState = 'home' | 'triage' | 'reports' | 'about' | 'pharmacy' | 'orders' | 'profile';
+export type ViewState = 'home' | 'triage' | 'reports' | 'about' | 'pharmacy' | 'orders' | 'profile' | 'login';
