@@ -50,34 +50,63 @@ The system is designed for **educational and demonstration purposes**.
 
 ---
 
-## Project Structure
 
-```text
-Campus Navigation System
-├── public
-│   ├── pharmacy-hero.jpg
-│   └── favicon.svg
-│
-├── views
-│   ├── Home.tsx
-│   ├── Pharmacy.tsx
-│   ├── Triage.tsx
-│   ├── Orders.tsx
-│   ├── Reports.tsx
-│   ├── Profile.tsx
-│   └── About.tsx
-│
-├── components
-│   ├── Header.tsx
-│   ├── Button.tsx
-│   ├── Icons.tsx
-│   └── AlertModal.tsx
-│
-├── services
-│   └── api.ts
-│
-├── App.tsx
-├── main.tsx
-├── index.html
-├── package.json
-└── README.md
+
+
+## Setup Instructions
+1. Clone the repository
+git clone https://github.com/tulasiram04/Metriage-AI.git
+cd Metriage-AI
+
+2. Install dependencies
+npm install
+
+3. Start development server
+npm run dev
+
+
+## Open in browser:
+
+http://localhost:5173
+
+Production Build
+npm run build
+
+
+## Build output:
+
+dist/
+
+Deployment (Vercel)
+
+Framework: Vite
+
+Build command:
+
+npm run build
+
+
+## Output directory:
+
+dist
+
+Environment Variables (example)
+VITE_API_BASE_URL=https://your-api-url
+VITE_GEMINI_API_KEY=your_api_key
+
+# Disclaimer
+
+This project is built only for learning and demonstration.
+
+AI results are probabilistic
+
+Not a substitute for professional medical advice
+
+Prescription medicines must follow Indian regulations
+
+Always consult a licensed medical practitioner
+
+## Author
+
+Tulasiram V
+GitHub: https://github.com/tulasiram04
