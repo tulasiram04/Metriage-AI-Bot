@@ -68,8 +68,26 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </nav>
 
-        {/* Right Section (empty for now, future actions can go here) */}
-        <div />
+        {/* Right Section: show Sign In when not authenticated, else Sign Out */}
+        <div>
+          {typeof window !== 'undefined' && !localStorage.getItem('medtriage_user') ? (
+            <button onClick={() => onNavigate('login')} className="px-4 py-2 rounded-lg bg-cyan-600 text-white">Sign In</button>
+          ) : (
+            <button
+              onClick={() => {
+                // Clear client auth and navigate to login
+                try {
+                  localStorage.removeItem('medtriage_user');
+                  localStorage.removeItem('campus_isAuthenticated');
+                } catch (e) {}
+                onNavigate('login');
+              }}
+              className="px-4 py-2 rounded-lg bg-rose-600 text-white"
+            >
+              Sign Out
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );
