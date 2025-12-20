@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const API_URL = (window as any).API_URL || 'http://localhost:5000/api/auth';
+const API_URL = (import.meta as any).env?.VITE_API_URL || '/api/auth';
 
 export const Login: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -21,17 +21,41 @@ export const Login: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || `Server Error: ${res.status}`);
+      // Some responses (errors or empty responses) may not return valid JSON.
+      // Read text first and try to parse JSON safely.
+      const text = await res.text();
+      let result: any = {};
+      if (text) {
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          // keep raw text for error reporting
+          result = { _raw: text };
+        }
+      }
 
+      if (!res.ok) {
+        const msg = result?.error || result?.message || result?._raw || `Server Error: ${res.status}`;
+        throw new Error(msg);
+      }
+
+      // If server returned a user object, persist it. Otherwise store whole result.
+      const userToStore = result?.user || result || {};
       localStorage.setItem('campus_isAuthenticated', 'true');
-      localStorage.setItem('medtriage_user', JSON.stringify(result.user));
+      localStorage.setItem('medtriage_user', JSON.stringify(userToStore));
 
-      // navigate to root using history (App listens to popstate)
+      // notify other components about auth change, then navigate to root
+      try { window.dispatchEvent(new Event('authchange')); } catch (e) {}
       window.history.pushState({}, '', '/');
       window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      const msg = err?.message || String(err) || 'Login failed';
+      console.error('Auth error:', err);
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+        setError(`Network error: could not reach authentication server. Ensure backend is running and CORS/proxy is configured. (${API_URL})`);
+      } else {
+        setError(msg);
+      }
     }
   };
 

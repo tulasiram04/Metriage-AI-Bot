@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewState } from '../types';
 import {
   HomeIcon,
@@ -70,23 +70,39 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Section: show Sign In when not authenticated, else Sign Out */}
         <div>
-          {typeof window !== 'undefined' && !localStorage.getItem('medtriage_user') ? (
-            <button onClick={() => onNavigate('login')} className="px-4 py-2 rounded-lg bg-cyan-600 text-white">Sign In</button>
-          ) : (
-            <button
-              onClick={() => {
-                // Clear client auth and navigate to login
-                try {
-                  localStorage.removeItem('medtriage_user');
-                  localStorage.removeItem('campus_isAuthenticated');
-                } catch (e) {}
-                onNavigate('login');
-              }}
-              className="px-4 py-2 rounded-lg bg-rose-600 text-white"
-            >
-              Sign Out
-            </button>
-          )}
+          {(() => {
+            const [isAuthed, setIsAuthed] = useState<boolean>(() => !!(typeof window !== 'undefined' && localStorage.getItem('medtriage_user')));
+
+            useEffect(() => {
+              const onAuth = () => setIsAuthed(!!localStorage.getItem('medtriage_user'));
+              window.addEventListener('authchange', onAuth);
+              window.addEventListener('storage', onAuth);
+              return () => {
+                window.removeEventListener('authchange', onAuth);
+                window.removeEventListener('storage', onAuth);
+              };
+            }, []);
+
+            if (!isAuthed) {
+              return <button onClick={() => onNavigate('login')} className="px-4 py-2 rounded-lg bg-cyan-600 text-white">Sign In</button>;
+            }
+
+            return (
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('medtriage_user');
+                    localStorage.removeItem('campus_isAuthenticated');
+                    window.dispatchEvent(new Event('authchange'));
+                  } catch (e) {}
+                  onNavigate('login');
+                }}
+                className="px-4 py-2 rounded-lg bg-rose-600 text-white"
+              >
+                Sign Out
+              </button>
+            );
+          })()}
         </div>
       </div>
     </header>
