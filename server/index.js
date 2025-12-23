@@ -1,18 +1,22 @@
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-/* --------------------------------------------------
-   Load environment variables FIRST
--------------------------------------------------- */
+// Load environment variables FIRST
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config();
 
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import session from "express-session";
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+
+console.log('Starting Server Initialization...');
+console.log('Environment loaded, GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
+// Debug: show env vars from .env (custom ones, not system)
+const customEnvVars = ['GROQ_API_KEY', 'MONGODB_URI', 'CLOUDINARY_CLOUD_NAME', 'PORT'];
+console.log('Checking env vars:');
+customEnvVars.forEach(v => console.log(`  ${v}:`, process.env[v] ? 'SET' : 'NOT SET'));
 
 /* --------------------------------------------------
    App Init
@@ -21,41 +25,36 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 /* --------------------------------------------------
-   REQUIRED FOR VERCEL (DO NOT REMOVE)
--------------------------------------------------- */
-app.set("trust proxy", 1);
-
-/* --------------------------------------------------
    Middleware
 -------------------------------------------------- */
+console.log('Middleware Setup...');
 
-// ✅ CORS – REQUIRED for auth on Vercel
-app.use(
-  cors({
-    origin: "https://metriage-ai.vercel.app",
-    credentials: true,
-  })
-);
+app.use(cors());
 
-// ✅ SESSION – REQUIRED for login persistence
-app.use(
-  session({
-    name: "metriage.sid",
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
-      secure: true,     // HTTPS only (Vercel)
-      sameSite: "none", // allow cross-site
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    },
-  })
-);
+// IMPORTANT: increase body size for Base64 images
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Body parsing (images + json)
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
+/* --------------------------------------------------
+   JSON & Payload Error Handling
+-------------------------------------------------- */
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.too.large') {
+    return res.status(413).json({
+      error: 'Image too large. Please upload an image under 5MB.',
+    });
+  }
+
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON payload' });
+  }
+
+  if (err instanceof SyntaxError) {
+    return res.status(400).json({ error: 'Invalid JSON payload' });
+  }
+
+  next(err);
+});
 
 /* --------------------------------------------------
    Request Logging
@@ -68,57 +67,66 @@ app.use((req, res, next) => {
 /* --------------------------------------------------
    MongoDB Connection
 -------------------------------------------------- */
+const MONGO_URI = process.env.MONGODB_URI;
+
+console.log('Connecting to MongoDB...');
+
 mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
+  .connect(MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => {
-    console.error("❌ MongoDB Connection Error:", err);
+    console.error('❌ MongoDB Connection Error:', err);
     process.exit(1);
   });
 
 /* --------------------------------------------------
-   Routes
+   Routes - Using dynamic imports to ensure env vars are loaded first
 -------------------------------------------------- */
-const authRoutes = (await import("./routes/auth.js")).default;
-const triageRoutes = (await import("./routes/triage.js")).default;
-const orderRoutes = (await import("./routes/orders.js")).default;
-const userRoutes = (await import("./routes/user.js")).default;
-const profileRoutes = (await import("./routes/profile.js")).default;
-const feedbackRoutes = (await import("./routes/feedback.js")).default;
+console.log('Importing Routes...');
 
-app.use("/api/auth", authRoutes);
-app.use("/api/triage", triageRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/feedback", feedbackRoutes);
+const authRoutes = (await import('./routes/auth.js')).default;
+const triageRoutes = (await import('./routes/triage.js')).default;
+const orderRoutes = (await import('./routes/orders.js')).default;
+const userRoutes = (await import('./routes/user.js')).default;
+const profileRoutes = (await import('./routes/profile.js')).default;
+const feedbackRoutes = (await import('./routes/feedback.js')).default;
+
+app.use('/api/auth', authRoutes);
+app.use('/api/triage', triageRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 /* --------------------------------------------------
    Health Check
 -------------------------------------------------- */
-app.get("/", (req, res) => {
-  res.send("Metriage AI API is running");
+app.get('/', (req, res) => {
+  res.send('MedTriage AI API is running');
 });
 
 /* --------------------------------------------------
-   Global Error Handler
+   GLOBAL ERROR HANDLER (MUST BE LAST)
 -------------------------------------------------- */
 app.use((err, req, res, next) => {
-  console.error("🔥 GLOBAL ERROR 🔥", err);
-  res.status(500).json({ error: "Internal Server Error" });
+  console.error('🔥 GLOBAL ERROR HANDLER 🔥');
+  console.error(err);
+
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message,
+    stack: err.stack, // REMOVE in production
+  });
 });
 
 /* --------------------------------------------------
    Start Server
 -------------------------------------------------- */
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
 
-// Export for Vercel serverless
-export default app;
+// Keep the event loop running
 
 /* --------------------------------------------------
    Error Handlers
