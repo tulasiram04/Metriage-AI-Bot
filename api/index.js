@@ -32,7 +32,7 @@ app.set("trust proxy", 1);
 // ✅ CORS – REQUIRED for auth on Vercel
 app.use(
   cors({
-    origin: "https://metriage-ai.vercel.app",
+    origin: true, // Allow all origins for now
     credentials: true,
   })
 );
@@ -52,10 +52,6 @@ app.use(
     },
   })
 );
-
-// Body parsing (images + json)
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 /* --------------------------------------------------
    Request Logging
@@ -79,12 +75,12 @@ mongoose
 /* --------------------------------------------------
    Routes
 -------------------------------------------------- */
-const authRoutes = (await import("./routes/auth.js")).default;
-const triageRoutes = (await import("./routes/triage.js")).default;
-const orderRoutes = (await import("./routes/orders.js")).default;
-const userRoutes = (await import("./routes/user.js")).default;
-const profileRoutes = (await import("./routes/profile.js")).default;
-const feedbackRoutes = (await import("./routes/feedback.js")).default;
+const authRoutes = (await import("../server/routes/auth.js")).default;
+const triageRoutes = (await import("../server/routes/triage.js")).default;
+const orderRoutes = (await import("../server/routes/orders.js")).default;
+const userRoutes = (await import("../server/routes/user.js")).default;
+const profileRoutes = (await import("../server/routes/profile.js")).default;
+const feedbackRoutes = (await import("../server/routes/feedback.js")).default;
 
 app.use("/api/auth", authRoutes);
 app.use("/api/triage", triageRoutes);
@@ -108,27 +104,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-/* --------------------------------------------------
-   Start Server
--------------------------------------------------- */
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
-}
-
 // Export for Vercel serverless
 export default app;
-
-/* --------------------------------------------------
-   Error Handlers
--------------------------------------------------- */
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
