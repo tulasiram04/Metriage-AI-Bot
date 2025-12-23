@@ -1,14 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
-
-console.log('Starting Server Initialization...');
-
-/* --------------------------------------------------
-   Load Environment Variables
--------------------------------------------------- */
-dotenv.config();
 
 /* --------------------------------------------------
    App Init

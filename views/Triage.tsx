@@ -5,7 +5,6 @@ import { FeedbackModal } from '../components/FeedbackModal';
 import { AlertTriangle, CheckCircle, ShieldAlert, Stethoscope, ChevronRight, Send, Bot, User, Trash, Download, LogOut } from '../components/Icons';
 import { analyzeSymptoms, startTriageChat } from '../services/geminiService';
 import { AnalysisResult, RiskLevel, HistoryItem, ChatMessage } from '../types';
-import { Chat } from '@google/genai';
 import { jsPDF } from 'jspdf';
 import { api } from '../services/api';
 
@@ -32,10 +31,11 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
   const [showDurationPicker, setShowDurationPicker] = useState(false);
 
   // Chat state
-  const [chatInstance, setChatInstance] = useState<Chat | null>(null);
+  const [chatInstance, setChatInstance] = useState<ReturnType<typeof startTriageChat> | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom of chat
@@ -45,31 +45,36 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
 
   // Check auth and auto-fill
   useEffect(() => {
-    try {
-      const userStr = localStorage.getItem('medtriage_user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        if (user && user.name) {
-          setFormData(prev => ({ ...prev, name: user.name }));
-        }
-      }
-    } catch (e) {
-      console.error("Error loading user data", e);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const me = JSON.parse(storedUser);
+      if (me && me.name) setFormData(prev => ({ ...prev, name: me.name }));
     }
   }, []);
 
   const checkAuth = () => {
-    const userStr = localStorage.getItem('medtriage_user');
-    if (!userStr) {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
       onAuthRequired();
       return false;
     }
-    return true;
+    try {
+      const user = JSON.parse(storedUser);
+      if (!user || !user.id) {
+        onAuthRequired();
+        return false;
+      }
+      return true;
+    } catch (e) {
+      onAuthRequired();
+      return false;
+    }
   };
 
   const handleStartChat = () => {
-    // Check Authentication
-    if (!checkAuth()) return;
+    // Check Authentication first
+    const isAuth = checkAuth();
+    if (!isAuth) return;
 
     if (!formData.age || symptoms.length === 0 || !formData.duration) return;
 
@@ -109,7 +114,7 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
     setIsSending(true);
 
     try {
-      const result = await chatInstance.sendMessage({ message: userMsg.text });
+      const result = await chatInstance.sendMessage(userMsg.text, messages);
       const responseText = result.text || "I'm having trouble connecting right now.";
 
       const botMsg: ChatMessage = {
@@ -133,6 +138,9 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
   };
 
   const handleAnalyze = async () => {
+    // Prevent duplicate calls
+    if (isAnalyzing) return;
+    setIsAnalyzing(true);
     setStep('analyzing');
 
     // Compile chat history for context
@@ -165,17 +173,18 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
 
     onComplete(historyItem);
 
-    // Persist to Backend
+    // Persist to Backend (attach server-side user ID if available)
     try {
-      const userStr = localStorage.getItem('medtriage_user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        if (user.id) {
-          await api.triage.save({ ...historyItem, userId: user.id });
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (meRes.ok) {
+        const me = await meRes.json();
+        const userId = me.id || me._id || me.userId;
+        if (userId) {
+          await api.triage.save({ ...historyItem, userId });
         }
       }
     } catch (e) {
-      console.error("Failed to save to backend", e);
+      console.error('Failed to save to backend', e);
     }
 
     setStep('result');
@@ -189,12 +198,15 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
     console.log(`User rated session: ${rating} stars`);
 
     try {
-      const userStr = localStorage.getItem('medtriage_user');
-      let userId = null;
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        userId = user.id;
-      }
+      // Resolve server-side user id if available
+      let userId: string | null = null;
+      try {
+        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          userId = me.id || me._id || me.userId || null;
+        }
+      } catch (e) { /* ignore */ }
 
       await api.feedback.save({ rating, userId });
     } catch (e) {

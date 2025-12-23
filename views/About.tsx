@@ -65,7 +65,7 @@ export const About: React.FC = () => {
               <span className="font-semibold">Database:</span> MongoDB with Mongoose ODM
             </li>
             <li>
-              <span className="font-semibold">AI Model:</span> Gemini 2.5 Flash
+              <span className="font-semibold">AI Model:</span> Groq LLaMA 3 70B
             </li>
             <li>
               <span className="font-semibold">Media Storage:</span> Cloudinary (secure image uploads)

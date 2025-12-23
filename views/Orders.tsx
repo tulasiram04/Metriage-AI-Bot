@@ -8,16 +8,16 @@ export const Orders: React.FC = () => {
     React.useEffect(() => {
         const loadOrders = async () => {
             try {
-                const savedUser = localStorage.getItem('medtriage_user');
-                if (!savedUser) {
-                    alert("Please sign in to view your orders.");
+                // Check localStorage for user
+                const storedUser = localStorage.getItem('user');
+                if (!storedUser) {
                     window.location.href = '/login';
                     return;
                 }
-
-                const parsedUser = JSON.parse(savedUser);
-                if (parsedUser.id) {
-                    const fetchedOrders = await api.orders.getAll(parsedUser.id);
+                const user = JSON.parse(storedUser);
+                const userId = user.id || user._id || user.userId;
+                if (userId) {
+                    const fetchedOrders = await api.orders.getAll(userId);
                     setOrders(fetchedOrders);
                 }
             } catch (e) {

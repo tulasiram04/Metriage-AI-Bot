@@ -70,17 +70,22 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Section: show Sign In when not authenticated, else Sign Out */}
         <div>
+          {/* Auth state is driven by server-side session via /api/auth/me */}
           {(() => {
-            const [isAuthed, setIsAuthed] = useState<boolean>(() => !!(typeof window !== 'undefined' && localStorage.getItem('medtriage_user')));
+            const AUTH_API = '/api/auth';
+            const [isAuthed, setIsAuthed] = useState<boolean>(false);
 
             useEffect(() => {
-              const onAuth = () => setIsAuthed(!!localStorage.getItem('medtriage_user'));
-              window.addEventListener('authchange', onAuth);
-              window.addEventListener('storage', onAuth);
-              return () => {
-                window.removeEventListener('authchange', onAuth);
-                window.removeEventListener('storage', onAuth);
+              let mounted = true;
+              const check = async () => {
+                const user = localStorage.getItem('user');
+                setIsAuthed(!!user);
               };
+              check();
+
+              const onAuth = () => check();
+              window.addEventListener('authchange', onAuth);
+              return () => { mounted = false; window.removeEventListener('authchange', onAuth); };
             }, []);
 
             if (!isAuthed) {
@@ -89,13 +94,13 @@ export const Header: React.FC<HeaderProps> = ({
 
             return (
               <button
-                onClick={() => {
+                onClick={async () => {
                   try {
-                    localStorage.removeItem('medtriage_user');
-                    localStorage.removeItem('campus_isAuthenticated');
-                    window.dispatchEvent(new Event('authchange'));
-                  } catch (e) {}
-                  onNavigate('login');
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                  } catch (e) { console.warn('Logout failed', e); }
+                  localStorage.removeItem('user');
+                  try { window.dispatchEvent(new Event('authchange')); } catch (e) {}
+                  setTimeout(() => onNavigate('login'), 50);
                 }}
                 className="px-4 py-2 rounded-lg bg-rose-600 text-white"
               >

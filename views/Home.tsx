@@ -1,13 +1,15 @@
 import React from 'react';
 import { Button } from '../components/Button';
 import { GlassCard } from '../components/GlassCard';
-import { Activity, ShieldAlert, Stethoscope, ChevronRight, Bot } from '../components/Icons';
+import { Activity, ShieldAlert, Stethoscope, ChevronRight } from '../components/Icons';
+import { ViewState } from '../types';
 
 interface HomeProps {
   onStart: () => void;
+  onNavigate: (view: ViewState) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onStart }) => {
+export const Home: React.FC<HomeProps> = ({ onStart, onNavigate }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 relative">
       {/* Localized Glows (Subtler to blend with global background) */}
@@ -40,9 +42,9 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
             Start Health Check
             <ChevronRight className="w-5 h-5 ml-2" />
           </Button>
-          <Button onClick={onStart} variant="secondary" className="text-lg px-8 py-4 bg-white/5 hover:bg-white/10 border-white/10 text-white backdrop-blur-md">
-            <Bot className="w-5 h-5 mr-2" />
-            AI Assistant
+          <Button onClick={() => onNavigate('about')} variant="secondary" className="text-lg px-8 py-4 bg-white/5 hover:bg-white/10 border-white/10 text-white backdrop-blur-md">
+            <span className="mr-2">ⓘ</span>
+            More Info
           </Button>
         </div>
 

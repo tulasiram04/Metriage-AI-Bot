@@ -41,3 +41,6 @@ dist-ssr
 
 # Secrets
 metriage-ai-firebase-adminsdk-fbsvc-*.json
+
+# OpenMemory - IDE/Assistant specific rules
+.github\instructions\openmemory.instructions.md

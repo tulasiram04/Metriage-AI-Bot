@@ -113,19 +113,24 @@ function App() {
   };
 
   const handleCheckout = () => {
-    // Check if user is truly signed in (has user data), not just "authenticated" (which could be Guest)
-    const userStr = localStorage.getItem('medtriage_user');
-    const user = userStr ? JSON.parse(userStr) : null;
-
-    if (!user) {
-      setShowSignInModal(true);
-      return;
-    }
-
-    alert("Checkout Successful! (Demo)");
-    setCartItems([]);
-    setIsCartOpen(false);
-    setCurrentView('pharmacy');
+    // Check server-side session for current user
+    (async () => {
+      try {
+        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!meRes.ok) {
+          setShowSignInModal(true);
+          return;
+        }
+        // Proceed with checkout (demo)
+        alert('Checkout Successful! (Demo)');
+        setCartItems([]);
+        setIsCartOpen(false);
+        setCurrentView('pharmacy');
+      } catch (e) {
+        console.error('Checkout auth check failed', e);
+        setShowSignInModal(true);
+      }
+    })();
   };
 
 
@@ -165,7 +170,7 @@ function App() {
         )}
 
         <main className="flex-grow container mx-auto px-4 py-8">
-          {currentView === 'home' && <Home onStart={() => setCurrentView('triage')} />}
+          {currentView === 'home' && <Home onStart={() => setCurrentView('triage')} onNavigate={setCurrentView} />}
           {currentView === 'triage' && (
             <Triage
               onComplete={handleTriageComplete}

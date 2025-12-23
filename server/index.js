@@ -1,14 +1,22 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Load environment variables FIRST
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
 
 console.log('Starting Server Initialization...');
-
-/* --------------------------------------------------
-   Load Environment Variables
--------------------------------------------------- */
-dotenv.config();
+console.log('Environment loaded, GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
+// Debug: show env vars from .env (custom ones, not system)
+const customEnvVars = ['GROQ_API_KEY', 'MONGODB_URI', 'CLOUDINARY_CLOUD_NAME', 'PORT'];
+console.log('Checking env vars:');
+customEnvVars.forEach(v => console.log(`  ${v}:`, process.env[v] ? 'SET' : 'NOT SET'));
 
 /* --------------------------------------------------
    App Init
@@ -72,16 +80,16 @@ mongoose
   });
 
 /* --------------------------------------------------
-   Routes
+   Routes - Using dynamic imports to ensure env vars are loaded first
 -------------------------------------------------- */
 console.log('Importing Routes...');
 
-import authRoutes from './routes/auth.js';
-import triageRoutes from './routes/triage.js';
-import orderRoutes from './routes/orders.js';
-import userRoutes from './routes/user.js';
-import profileRoutes from './routes/profile.js';
-import feedbackRoutes from './routes/feedback.js';
+const authRoutes = (await import('./routes/auth.js')).default;
+const triageRoutes = (await import('./routes/triage.js')).default;
+const orderRoutes = (await import('./routes/orders.js')).default;
+const userRoutes = (await import('./routes/user.js')).default;
+const profileRoutes = (await import('./routes/profile.js')).default;
+const feedbackRoutes = (await import('./routes/feedback.js')).default;
 
 app.use('/api/auth', authRoutes);
 app.use('/api/triage', triageRoutes);
@@ -116,4 +124,20 @@ app.use((err, req, res, next) => {
 -------------------------------------------------- */
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+// Keep the event loop running
+setInterval(() => {}, 1000);
+
+/* --------------------------------------------------
+   Error Handlers
+-------------------------------------------------- */
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });

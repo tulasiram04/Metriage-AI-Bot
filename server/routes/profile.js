@@ -7,15 +7,6 @@ import { User } from '../models/User.js';
 const router = express.Router();
 
 /* --------------------------------------------------
-   DEBUG: Verify env vars INSIDE this module
--------------------------------------------------- */
-console.log('☁️ Cloudinary ENV CHECK (profile route):', {
-  cloud: process.env.CLOUDINARY_CLOUD_NAME,
-  key: process.env.CLOUDINARY_API_KEY,
-  secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : undefined,
-});
-
-/* --------------------------------------------------
    Cloudinary Configuration
 -------------------------------------------------- */
 cloudinary.config({

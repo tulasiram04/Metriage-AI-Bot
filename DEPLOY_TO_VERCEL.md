@@ -35,7 +35,7 @@ git push -u origin main
 - In the Import settings, set the Build Command to `npm run build` (or `vite build`) and the Output Directory to `dist`.
 - Add environment variables in Vercel (do NOT upload `.env`). Create the following variables in the Vercel dashboard and copy values from your local `.env`:
 
-  - `GEMINI_API_KEY`
+  - `GROQ_API_KEY`
   - `CLOUDINARY_CLOUD_NAME`
   - `CLOUDINARY_API_KEY`
   - `CLOUDINARY_API_SECRET`

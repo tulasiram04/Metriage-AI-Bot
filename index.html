@@ -47,6 +47,7 @@
             'blob': 'blob 10s infinite',
             'fade-in': 'fadeIn 0.5s ease-out forwards',
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'scale-in': 'scaleIn 0.3s ease-out forwards',
           },
           keyframes: {
             blob: {
@@ -58,6 +59,10 @@
             fadeIn: {
               '0%': { opacity: '0', transform: 'translateY(10px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.9)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
             }
           }
         },
@@ -120,7 +125,7 @@
     "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react-dom": "https://esm.sh/react-dom@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+
     "jspdf": "https://esm.sh/jspdf@2.5.1"
   }
 }
