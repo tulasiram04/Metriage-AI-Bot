@@ -7,15 +7,16 @@ import { analyzeSymptoms, startTriageChat } from '../services/geminiService';
 import { AnalysisResult, RiskLevel, HistoryItem, ChatMessage } from '../types';
 import { jsPDF } from 'jspdf';
 import { api } from '../services/api';
+import { UserData } from '../services/userSession';
 
 interface TriageProps {
   onComplete: (item: HistoryItem) => void;
-  onAuthRequired: () => void;
+  userData?: UserData | null;
 }
 
 import { COMMON_SYMPTOMS_LIST, ALL_SYMPTOMS_AND_DISEASES } from '../data/symptoms';
 
-export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) => {
+export const Triage: React.FC<TriageProps> = ({ onComplete, userData }) => {
   const [step, setStep] = useState<'input' | 'chat' | 'analyzing' | 'result'>('input');
   const [formData, setFormData] = useState({
     name: '',
@@ -43,39 +44,19 @@ export const Triage: React.FC<TriageProps> = ({ onComplete, onAuthRequired }) =>
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Check auth and auto-fill
+  // Auto-fill from userData (medical profile)
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const me = JSON.parse(storedUser);
-      if (me && me.name) setFormData(prev => ({ ...prev, name: me.name }));
+    if (userData) {
+      setFormData(prev => ({
+        ...prev,
+        name: userData.name || prev.name,
+        age: userData.age?.toString() || prev.age,
+        gender: userData.gender || prev.gender
+      }));
     }
-  }, []);
-
-  const checkAuth = () => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      onAuthRequired();
-      return false;
-    }
-    try {
-      const user = JSON.parse(storedUser);
-      if (!user || !user.id) {
-        onAuthRequired();
-        return false;
-      }
-      return true;
-    } catch (e) {
-      onAuthRequired();
-      return false;
-    }
-  };
+  }, [userData]);
 
   const handleStartChat = () => {
-    // Check Authentication first
-    const isAuth = checkAuth();
-    if (!isAuth) return;
-
     if (!formData.age || symptoms.length === 0 || !formData.duration) return;
 
     // Initialize Chat

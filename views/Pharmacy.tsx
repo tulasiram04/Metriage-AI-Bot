@@ -29,7 +29,7 @@ export interface Medicine {
 }
 
 /* ---------------- SAMPLE DATA ---------------- */
-const MEDICINES: Medicine[] = [
+export const MEDICINES: Medicine[] = [
   // Fever & Pain (10)
   {
     id: '1',
@@ -1749,9 +1749,10 @@ const CATEGORIES = [
 interface PharmacyProps {
   onAddToCart?: (medicine: Medicine) => void;
   cartItemCount?: number;
+  onMedicineSelect?: (medicineId: string) => void;
 }
 
-export const Pharmacy: React.FC<PharmacyProps> = ({ onAddToCart, cartItemCount }) => {
+export const Pharmacy: React.FC<PharmacyProps> = ({ onAddToCart, cartItemCount, onMedicineSelect }) => {
   const [activeTab, setActiveTab] = useState<'catalog' | 'orders'>('catalog');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');

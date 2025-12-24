@@ -90,6 +90,7 @@ const orderRoutes = (await import('./routes/orders.js')).default;
 const userRoutes = (await import('./routes/user.js')).default;
 const profileRoutes = (await import('./routes/profile.js')).default;
 const feedbackRoutes = (await import('./routes/feedback.js')).default;
+const sessionRoutes = (await import('./routes/session.js')).default;
 
 app.use('/api/auth', authRoutes);
 app.use('/api/triage', triageRoutes);
@@ -97,6 +98,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/session', sessionRoutes);
 
 /* --------------------------------------------------
    Health Check

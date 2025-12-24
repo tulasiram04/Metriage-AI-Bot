@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ViewState } from '../types';
 import {
   HomeIcon,
@@ -68,46 +68,9 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </nav>
 
-        {/* Right Section: show Sign In when not authenticated, else Sign Out */}
-        <div>
-          {/* Auth state is driven by server-side session via /api/auth/me */}
-          {(() => {
-            const AUTH_API = '/api/auth';
-            const [isAuthed, setIsAuthed] = useState<boolean>(false);
-
-            useEffect(() => {
-              let mounted = true;
-              const check = async () => {
-                const user = localStorage.getItem('user');
-                setIsAuthed(!!user);
-              };
-              check();
-
-              const onAuth = () => check();
-              window.addEventListener('authchange', onAuth);
-              return () => { mounted = false; window.removeEventListener('authchange', onAuth); };
-            }, []);
-
-            if (!isAuthed) {
-              return <button onClick={() => onNavigate('login')} className="px-4 py-2 rounded-lg bg-cyan-600 text-white">Sign In</button>;
-            }
-
-            return (
-              <button
-                onClick={async () => {
-                  try {
-                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                  } catch (e) { console.warn('Logout failed', e); }
-                  localStorage.removeItem('user');
-                  try { window.dispatchEvent(new Event('authchange')); } catch (e) {}
-                  setTimeout(() => onNavigate('login'), 50);
-                }}
-                className="px-4 py-2 rounded-lg bg-rose-600 text-white"
-              >
-                Sign Out
-              </button>
-            );
-          })()}
+        {/* Right Section: Free Access Badge */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600/20 to-teal-600/20 border border-cyan-500/30">
+          <span className="text-xs text-cyan-300 font-medium">✓ No Sign In Required</span>
         </div>
       </div>
     </header>
