@@ -1,6 +1,6 @@
 # 🏥 METRIAGE AI
 
-METRIAGE AI is a **full-stack healthcare triage and pharmacy support platform** designed to assist users in assessing health conditions, managing profiles, viewing reports, and accessing pharmacy-related services. The project combines a modern **React + TypeScript frontend** with a **Node.js + Express backend**, integrated with AI services and cloud storage.
+METRIAGE AI is a **full-stack healthcare triage and pharmacy support platform** designed to assist users in assessing health conditions, managing profiles, viewing reports, and accessing pharmacy-related services. The project combines a modern **React + TypeScript frontend** with a **Node.js + Express backend**, integrated with AI services and cloud storage
 
 ---
 
