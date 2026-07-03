@@ -32,7 +32,7 @@ METRIAGE AI is a **full-stack healthcare triage and pharmacy support platform** 
 * Reports
 * Triage
 * Pharmacy
-* Orders
+* Order
 
 ---
 
