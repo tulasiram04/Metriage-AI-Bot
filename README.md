@@ -195,7 +195,7 @@ Open: **[http://localhost:3000](http://localhost:3000)**
 ## 👨‍💻 Author
 
 **Tulasiram V**
-Healthcare AI & Full-Stack Developer
+Healthcare AI&Full-Stack Developer
 
 ---
 
