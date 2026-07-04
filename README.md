@@ -32,7 +32,7 @@ METRIAGE AI is a **full-stack healthcare triage and pharmacy support platform** 
 * Reports
 * Triage
 * Pharmacy
-* Orders
+* Order
 
 ---
 
@@ -50,7 +50,7 @@ METRIAGE AI is a **full-stack healthcare triage and pharmacy support platform** 
 * **Node.js**
 * **Express.js**
 * **MongoDB** (models)
-* **Cloudinary** (avatar/image uploads)
+* **Cloudinary** (avatar, image uploads)
 
 ### AI & Services
 
